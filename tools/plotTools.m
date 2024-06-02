@@ -1,9 +1,13 @@
 clear;
-close all;
+% close all;
 
 addpath('../data/simData/')
 addpath('../data/output/')
 
-fuzzyMembershipImage = table2array(readtable("fuzzyMembershipImage.csv"));
-figure; imagesc(reshape(fuzzyMembershipImage,[516 516]));
+F = table2array(readtable("D.csv"));
+figure; imagesc(reshape(abs(F),[516 516]).');
 colormap gray
+colorbar
+
+figure;
+histogram(F)
