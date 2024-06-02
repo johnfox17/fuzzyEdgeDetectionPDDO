@@ -8,7 +8,8 @@ class fuzzyEdgeDetectionPDDO:
         self.Nx = constants.NX
         self.Ny = constants.NY
         self.horizon = constants.HORIZON
-
+        self.gradientKernel = constants.PDDOGradientKernel
+        
     def loadMembershipFunction(self):
         self.membershipFunction = np.loadtxt(self.pathToMembershipFunction, delimiter=",")
 
@@ -35,22 +36,23 @@ class fuzzyEdgeDetectionPDDO:
             fuzzyMembershipImage.append(self.pixelMemberships[iPixel][1])
         self.fuzzyMembershipImage = np.array(fuzzyMembershipImage).reshape((self.Nx,self.Ny))
 
-    '''def findFuzzyDerivativeRule(self):
+    def findFuzzyDerivativeRule(self):
         D = []
         for iCol in range(int(self.horizon),self.Nx-int(self.horizon)):
             for iRow in range(int(self.horizon),self.Ny-int(self.horizon)):
-                D.append(np.sum(np.multiply(self.g,self.fuzzyMembershipImage[iRow-int(self.horizon):iRow+int(self.horizon)+1,iCol-int(self.horizon):iCol+int(self.horizon)+1]).flatten()).astype(int))
+                D.append(np.sum(np.multiply(self.gradientKernel, self.fuzzyMembershipImage[iRow-int(self.horizon):iRow+int(self.horizon)+1,iCol-int(self.horizon):iCol+int(self.horizon)+1]).flatten()).astype(int))
         D = np.array(D)
         while np.max(np.absolute(D))>255:
             D = np.divide(D,2)
-        self.D = np.pad(D.reshape((self.Nx-int(2*self.horizon),self.Ny-int(2*self.horizon))),int(self.horizon),mode='symmetric')'''
+        self.D = np.pad(D.reshape((self.Nx-int(2*self.horizon),self.Ny-int(2*self.horizon))),int(self.horizon),mode='symmetric')
 
     def solve(self):
         self.loadMembershipFunction()
         self.addBoundary()
         self.assignMembership()
         self.createFuzzyMembershipImage()
-        np.savetxt('../data/output/fuzzyMembershipImage.csv',  self.fuzzyMembershipImage, delimiter=",")
+        self.findFuzzyDerivativeRule()
+        np.savetxt('../data/output/D.csv',  self.D, delimiter=",")
         print('Here')
         a = input('').split(" ")[0]
 
