@@ -9,7 +9,10 @@ class fuzzyEdgeDetectionPDDO:
         self.Ny = constants.NY
         self.horizon = constants.HORIZON
         self.gradientKernel = constants.PDDOGradientKernel
-        
+        self.gMask = constants.GMASK
+        self.gCenter = constants.GCENTER
+        self.kerneldim = constants.KERNELDIM
+
     def loadMembershipFunction(self):
         self.membershipFunction = np.loadtxt(self.pathToMembershipFunction, delimiter=",")
 
@@ -46,13 +49,30 @@ class fuzzyEdgeDetectionPDDO:
             D = np.divide(D,2)
         self.D = np.pad(D.reshape((self.Nx-int(2*self.horizon),self.Ny-int(2*self.horizon))),int(self.horizon),mode='symmetric')
 
+    def calculateGradient(self):
+        gradient = []
+        for iCol in range(int(self.horizon),self.Nx-int(self.horizon)):
+            for iRow in range(int(self.horizon),self.Ny-int(self.horizon)):
+                D = np.multiply(self.gMask,self.D[iRow-int(self.horizon):iRow+int(self.horizon)+1,iCol-int(self.horizon):iCol+int(self.horizon)+1]).astype(int).flatten()
+                L = np.multiply(self.gMask,self.image[iRow-int(self.horizon):iRow+int(self.horizon)+1,iCol-int(self.horizon):iCol+int(self.horizon)+1]).astype(int).flatten()
+                muPrem = np.sum(self.membershipFunction[L,1])
+                gCents = []
+                for iD in D:
+                    gCents.append(self.gCenter[np.abs(self.gCenter-iD).argmin()])
+                gCents = np.array(gCents).reshape((self.kerneldim,self.kerneldim))
+                gradient.append(np.sum(np.multiply(self.gMask,(np.multiply(gCents, self.membershipFunction[L,1].reshape((self.kerneldim,self.kerneldim))))/muPrem).flatten()))
+        while np.max(np.absolute(gradient))>255:
+            gradient = np.divide(gradient,2)
+        self.gradient = np.array(gradient)
+    
     def solve(self):
         self.loadMembershipFunction()
         self.addBoundary()
         self.assignMembership()
         self.createFuzzyMembershipImage()
         self.findFuzzyDerivativeRule()
-        np.savetxt('../data/output/D.csv',  self.D, delimiter=",")
+        self.calculateGradient()
+        np.savetxt('../data/output/gradient.csv',  self.gradient, delimiter=",")
         print('Here')
         a = input('').split(" ")[0]
 

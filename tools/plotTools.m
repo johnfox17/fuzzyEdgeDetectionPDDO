@@ -4,10 +4,10 @@ clear;
 addpath('../data/simData/')
 addpath('../data/output/')
 
-F = table2array(readtable("D.csv"));
-figure; imagesc(reshape(abs(F),[516 516]).');
+gradient = table2array(readtable("gradient.csv"));
+figure; imagesc(reshape(gradient,[512 512]).');
 colormap gray
 colorbar
 
 figure;
-histogram(F)
+histogram(gradient)
