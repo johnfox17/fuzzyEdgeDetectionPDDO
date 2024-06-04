@@ -1,5 +1,7 @@
 import constants
 import numpy as np
+from scipy import signal
+
 
 class fuzzyEdgeDetectionPDDO:
     def __init__(self, image, pathToMembershipFunction):
@@ -8,7 +10,8 @@ class fuzzyEdgeDetectionPDDO:
         self.Nx = constants.NX
         self.Ny = constants.NY
         self.horizon = constants.HORIZON
-        self.gradientKernel = constants.PDDOGradientKernel
+        self.gradientKernel = constants.PDDOGRADIENTKERNEL
+        self.laplacianKernel = constants.PDDOLAPLACIANKERNEL
         self.gMask = constants.GMASK
         self.gCenter = constants.GCENTER
         self.kerneldim = constants.KERNELDIM
@@ -49,7 +52,7 @@ class fuzzyEdgeDetectionPDDO:
             D = np.divide(D,2)
         self.D = np.pad(D.reshape((self.Nx-int(2*self.horizon),self.Ny-int(2*self.horizon))),int(self.horizon),mode='symmetric')
 
-    def calculateGradient(self):
+    def calculateFuzzyPDDOGradient(self):
         gradient = []
         for iCol in range(int(self.horizon),self.Nx-int(self.horizon)):
             for iRow in range(int(self.horizon),self.Ny-int(self.horizon)):
@@ -59,20 +62,31 @@ class fuzzyEdgeDetectionPDDO:
                 gCents = []
                 for iD in D:
                     gCents.append(self.gCenter[np.abs(self.gCenter-iD).argmin()])
+                    #gCents.append(iD)
                 gCents = np.array(gCents).reshape((self.kerneldim,self.kerneldim))
                 gradient.append(np.sum(np.multiply(self.gMask,(np.multiply(gCents, self.membershipFunction[L,1].reshape((self.kerneldim,self.kerneldim))))/muPrem).flatten()))
         while np.max(np.absolute(gradient))>255:
             gradient = np.divide(gradient,2)
-        self.gradient = np.array(gradient)
+        self.gradientFuzzyPDDO = np.array(gradient)
     
+    def calculatePDDOGradient(self):
+        self.gradientPDDO = signal.convolve2d(self.image, self.gradientKernel, boundary='symm', mode='same')
+
+    def calculatePDDOLaplacian(self):
+        self.laplacianPDDO = signal.convolve2d(self.image, self.laplacianKernel, boundary='symm', mode='same')
+
     def solve(self):
         self.loadMembershipFunction()
         self.addBoundary()
         self.assignMembership()
         self.createFuzzyMembershipImage()
         self.findFuzzyDerivativeRule()
-        self.calculateGradient()
-        np.savetxt('../data/output/gradient.csv',  self.gradient, delimiter=",")
+        self.calculateFuzzyPDDOGradient()
+        self.calculatePDDOGradient()
+        self.calculatePDDOLaplacian()
+        np.savetxt('../data/output/gradientFuzzyPDDO2.csv',  self.gradientFuzzyPDDO, delimiter=",")
+        np.savetxt('../data/output/gradientPDDO.csv',  self.gradientPDDO, delimiter=",")
+        np.savetxt('../data/output/laplacianPDDO.csv',  self.laplacianPDDO, delimiter=",")
         print('Here')
         a = input('').split(" ")[0]
 
