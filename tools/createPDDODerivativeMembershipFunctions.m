@@ -2,14 +2,17 @@ clear;
 close all;
 
 grayScaleDerivativeMesh = []; 
-smallestValue = -80;
-largestValue = 80;
+% smallestValue = -80;
+% largestValue = 80;
+smallestValue = -255;
+largestValue = 255;
+
 smallestValueOfPDDOFuzzyDerivativeRule = 0;
-largestValueOfPDDOFuzzyDerivativeRule = 50;
+largestValueOfPDDOFuzzyDerivativeRule = 98;
 numOfDivisions = 50;
 
 dx = (largestValue - smallestValue)/numOfDivisions;
-for i=0:50
+for i=0:numOfDivisions
     grayScaleDerivativeMesh=[grayScaleDerivativeMesh, smallestValue+dx*i];
 end
 
@@ -40,3 +43,5 @@ D = (L-a)/(b-a);
 plot(L,D,'k');
 grid on;
 ylim([0 1.2])
+
+writematrix(grayScaleDerivativeMesh,'../data/simData/grayScaleDerivative7by7Kernel.csv');

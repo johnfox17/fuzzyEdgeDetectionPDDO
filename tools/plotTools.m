@@ -32,6 +32,14 @@ colormap gray
 colorbar
 title('Fuzzy PDDO Gradient')
 
+fuzzyPDDOGradient2 = table2array(readtable("fuzzyPDDOGradient2.csv"));
+fuzzyPDDOGradient2 = abs(fuzzyPDDOGradient2./max(abs(fuzzyPDDOGradient2(:))));
+figure;
+imagesc(abs(fuzzyPDDOGradient2))
+colormap gray
+colorbar
+title('Fuzzy PDDO Gradient 2')
+
 laplacianPDDO = table2array(readtable("laplacianPDDO.csv"));
 laplacianPDDO = abs(laplacianPDDO./max(abs(laplacianPDDO(:))));
 % laplacianPDDO(laplacianPDDO<.15)=0;
@@ -50,6 +58,36 @@ colormap gray
 colorbar
 title('Fuzzy PDDO Laplacian')
 
+fuzzyPDDOLaplacian2 = table2array(readtable("fuzzyPDDOLaplacian2.csv"));
+fuzzyPDDOLaplacian2 = abs(fuzzyPDDOLaplacian2./max(abs(fuzzyPDDOLaplacian2(:))));
+figure;
+imagesc(abs(fuzzyPDDOLaplacian2))
+colormap gray
+colorbar
+title('Fuzzy PDDO Laplacian 2')
+
+
+DGradient = table2array(readtable("DGradient.csv"));
+%DGradient = abs(DGradient.'./max(abs(DGradient(:))));
+DGradient = DGradient.';
+figure;
+imagesc(abs(DGradient))
+colormap gray
+colorbar
+title('D Fuzzy Gradient')
+
+figure; histogram(DGradient)
+
+DLaplacian = table2array(readtable("DLaplacian.csv"));
+DLaplacian = DLaplacian.';
+%DLaplacian = abs(DLaplacian.'./max(abs(DLaplacian(:))));
+figure;
+imagesc(abs(DLaplacian))
+colormap gray
+colorbar
+title('D Fuzzy Laplacian')
+
+figure; histogram(DLaplacian)
 
 
 

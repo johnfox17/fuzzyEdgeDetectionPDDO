@@ -15,7 +15,8 @@ class fuzzyEdgeDetectionPDDO:
         self.kernelLaplacian = constants.PDDOLAPLACIANKERNEL
         self.gMaskGradient = constants.GMASKGRADIENT
         self.gMaskLaplacian = constants.GMASKLAPLACIAN
-        self.gCenter = constants.GCENTER
+        self.gCenterGradient = constants.GCENTERGRADIENT
+        self.gCenterLaplacian = constants.GCENTERLAPLACIAN
         self.kerneldimGradient = constants.KERNELDIMGRADIENT
         self.kerneldimLaplacian = constants.KERNELDIMLAPLACIAN
 
@@ -86,6 +87,8 @@ class fuzzyEdgeDetectionPDDO:
         self.assignMembership()
         self.createFuzzyMembershipImage()
         self.findFuzzyDerivativeRule(self.horizonGradient, self.kernelGradient)
+        DGradient = self.D
+        self.gCenter = self.gCenterGradient
         fuzzyPDDOGradient = self.calculateFuzzyPDDODerivative(self.horizonGradient, self.gMaskGradient, self.kerneldimGradient)
         
         #Calculate fuzzyPDDOLaplacian
@@ -93,14 +96,18 @@ class fuzzyEdgeDetectionPDDO:
         self.assignMembership()
         self.createFuzzyMembershipImage()
         self.findFuzzyDerivativeRule(self.horizonLaplacian, self.kernelLaplacian)
+        DLaplacian = self.D
+        self.gCenter = self.gCenterLaplacian
         fuzzyPDDOLaplacian = self.calculateFuzzyPDDODerivative(self.horizonLaplacian, self.gMaskLaplacian, self.kerneldimLaplacian)
 
         self.calculatePDDOGradient()
         self.calculatePDDOLaplacian()
-        np.savetxt('../data/output/fuzzyPDDOGradient.csv',  fuzzyPDDOGradient, delimiter=",")
-        np.savetxt('../data/output/fuzzyPDDOLaplacian.csv',  fuzzyPDDOLaplacian, delimiter=",")
+        np.savetxt('../data/output/fuzzyPDDOGradient2.csv',  fuzzyPDDOGradient, delimiter=",")
+        np.savetxt('../data/output/fuzzyPDDOLaplacian2.csv',  fuzzyPDDOLaplacian, delimiter=",")
         np.savetxt('../data/output/gradientPDDO.csv',  self.gradientPDDO, delimiter=",")
         np.savetxt('../data/output/laplacianPDDO.csv',  self.laplacianPDDO, delimiter=",")
+        np.savetxt('../data/output/DGradient.csv2',  DGradient, delimiter=",")
+        np.savetxt('../data/output/DLaplacian.csv2',  DLaplacian, delimiter=",")
         print('Here')
         a = input('').split(" ")[0]
 
